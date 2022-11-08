@@ -7962,6 +7962,7 @@ const fetch = __nccwpck_require__(467);
 const fs = __nccwpck_require__(5747);
 const semver = __nccwpck_require__(1383);
 const os = __nccwpck_require__(2087);
+const path = __nccwpck_require__(5622);
 const { Console } = __nccwpck_require__(7082);
 // const path = require("path");
 
@@ -8003,7 +8004,7 @@ async function run() {
     const extraParameters = core.getInput("extraParameters") || "";
 
 
-    const itrEnabled = false;
+    const itrEnabled = true;
     if (itrEnabled) {
       //If project uses testplan force use of code coverage
       let file_list = recFindByExt(".", "xctestplan");
@@ -8077,14 +8078,6 @@ async function run() {
       extraParameters;
 
       const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
-    }
     const result = await exec.exec(buildCommand, null, options);
 
     //For all testruns that are configured
@@ -8138,14 +8131,6 @@ async function run() {
         extraParameters;
       try {
         const options = {};
-        options.listeners = {
-          stdout: data => {
-            console.log(data.toString())
-          },
-          stderr: data => {
-            console.log(data.toString())
-          }
-        }
         await exec.exec(testCommand, null, options);
       } catch (error) {
         testError = error.message;
@@ -8533,14 +8518,6 @@ async function swiftPackageRun(platform, extraParameters, itrEnabled) {
   let testError;
   try {
     const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
-    }
     options.env = {
       ...envVars,
       "DD_TEST_RUNNER": "1",
