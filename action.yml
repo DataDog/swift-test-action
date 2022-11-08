@@ -32,15 +32,11 @@ inputs:
     required: false
   libraryVersion:
     description: "Version of the Datagog SDK testing framework to use for testing, by default the latest stable"
-    required: falseº
+    required: false
   extraParameters:
     description: "These input will be added directly to the build/test command"
     required: false
     default: ""
-  forceSPM:
-    description: If the project is a Swift Package Manager, force to use directly 'swift test' instead of converting previously to xcodeproj. Experimental use.
-    required: false
-    default: false
 runs:
   using: 'node16'
   main: 'dist/index.js'

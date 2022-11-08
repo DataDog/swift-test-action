@@ -11,6 +11,7 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const semver = require("semver");
 const os = require("os");
+const { Console } = require('console');
 // const path = require("path");
 
 const temp = os.tmpdir();
@@ -37,7 +38,7 @@ async function run() {
 
     let applicationKey =  core.getInput("application_key");
     if (applicationKey) {
-      envVars[DD_APPLICATION_KEY] = apiKey;
+      envVars[DD_APPLICATION_KEY] = applicationKey;
     }
 
 
@@ -47,7 +48,7 @@ async function run() {
     const sdk = core.getInput("sdk") || getSDKForPlatform(platform);
     const destination = core.getInput("destination") || getDestinationForPlatform(platform);
     const configuration = core.getInput("configuration") || "Debug";
-    const libraryVersion = core.getInput("libraryVersion");
+    const libraryVersion = core.getInput("libraryVersion" || "");
     const extraParameters = core.getInput("extraParameters") || "";
 
 
@@ -70,6 +71,9 @@ async function run() {
     let xcodeproj = await getXCodeProj();
     var projectParameter;
 
+    //download testing framework
+    await downloadLatestFramework(libraryVersion);
+
     if (workspace) {
       console.log(`Workspace selected: ${workspace}`);
       projectParameter = "-workspace " + `"${workspace}"`;
@@ -77,13 +81,9 @@ async function run() {
       console.log(`Project selected: ${xcodeproj}`);
       projectParameter = "-project " + `"${xcodeproj}"`;
     } else if (fs.existsSync("Package.swift")) {
-      if (core.getInput("forceSPM") === "true") {
-        await swiftPackageRun(extraParameters, itrEnabled, libraryVersion);
-        return;
-      } else {
-        xcodeproj = await generateProjectFromSPM();
-        projectParameter = "-project " + `"${xcodeproj}"`;
-      }
+      console.log(`Package.swift selected`);
+      await swiftPackageRun(platform, extraParameters, itrEnabled);
+      return;
     } else {
       core.setFailed(
         "Unable to find workspace, project or Swift package file. Please set with workspace or xcodeproj"
@@ -98,8 +98,7 @@ async function run() {
       const configFilePath = sdkTestingDir + "/" + configfileName;
       createXCConfigFile(configFilePath, sdkTestingDir);
 
-    //download testing framework
-    await downloadLatestFramework(libraryVersion);
+
 
     let codeCoverParam = "";
     if (itrEnabled) {
@@ -241,6 +240,18 @@ function getDestinationForPlatform(platform) {
   }
 }
 
+function getFrameworkPathForPlatform(platform) {
+  switch (platform) {
+    case "macos":
+    case "mac":
+      return "macos-arm64_x86_64 ";
+    case "tvos":
+      return "tvos-arm64_x86_64-simulator";
+    default:
+      return "ios-arm64_x86_64-simulator";
+  }
+}
+
 async function deleteLinesContaining(file, match) {
   let newName = file + "_old";
   await io.mv(file, newName);
@@ -361,22 +372,19 @@ async function downloadLatestFramework(libraryVersion) {
   let currentVersion = "0.0.1";
   let sdkURL = "";
 
-  console.log(Object.keys(releases))
-  if( libraryVersion == "") {
-    Object.entries(releases).forEach(function(entry) {
-      let name = entry[1].name;
-      if (semver.gt(name, currentVersion) && !semver.prerelease(name)) {
-        currentVersion = name;
-        sdkURL = entry[1].assets[0].browser_download_url
-      }
-    });
-  } else {
-    Object.entries(releases).forEach(function(entry) {
-      if (semver.eq(name, libraryVersion)) {
-        sdkURL = entry[1].assets[0].browser_download_url
-      }
-    });
-  }
+  console.log(`Desired DDSDKSwiftTesting version ${libraryVersion}`)
+
+  for (let release of Object.entries(releases)) {
+    let name = release[1].name;
+    if (semver.eq(name, libraryVersion)) {
+      sdkURL = release[1].assets[0].browser_download_url
+      break
+    }
+    if (semver.gt(name, currentVersion) && !semver.prerelease(name)) {
+      currentVersion = name;
+      sdkURL = release[1].assets[0].browser_download_url
+    }
+  };
 
   const sdkTestingPath = sdkTestingDir + "/dd_sdk_testing.zip";
   console.log(`dd_sdk_testing downloading: ${sdkURL}`);
@@ -444,7 +452,7 @@ async function getXCTestRuns() {
 async function insertEnvVariables(file, target) {
   //Base setting
   await insertEnvVariable("DD_TEST_RUNNER", 1, file, target);
-  await insertEnvVariable( "SRCROOT", "$(SRCROOT)" || "", file, target );
+  await insertEnvVariable( "SRCROOT", envVars["GITHUB_WORKSPACE"]|| "", file, target );
   await insertEnvVariable(DD_API_KEY, envVars[DD_API_KEY], file, target);
   await insertEnvVariable(DD_APPLICATION_KEY, envVars[DD_APPLICATION_KEY], file, target);
 
@@ -497,8 +505,8 @@ async function insertEnvVariable(name, value, file, target) {
       target +
       ".EnvironmentVariables." +
       name +
-      '" -string ' +
-      value +
+      '" -string' +
+      ` "${value}"` +
       ` "${file}"`;
     await exec.exec(insertCommand, null, null);
   }
@@ -552,25 +560,22 @@ async function deleteLinesContaining(file, match) {
   });
 }
 
-async function swiftPackageRun(extraParameters, itrEnabled, libraryVersion) {
-  //download testing framework
-  await downloadLatestFramework(libraryVersion);
+async function swiftPackageRun(platform, extraParameters, itrEnabled) {
   let codeCoverParam = "";
   if (itrEnabled) {
     codeCoverParam = " --enable-code-coverage ";
   }
 
   //build and test
-
   let buildTestCommand =
     "swift test " +
     codeCoverParam +
     " -Xswiftc " +
     "-F" +
-    sdkTestingFrameworkPath +
+    sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
     " " +
-    " -Xswiftc -framework -Xswiftc ScopeAgent -Xlinker -rpath -Xlinker " +
-    sdkTestingFrameworkPath +
+    " -Xswiftc -framework -Xswiftc DatadogSDKTesting -Xlinker -rpath -Xlinker " +
+    sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
     " " +
     extraParameters;
 
