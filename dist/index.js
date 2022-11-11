@@ -8078,6 +8078,14 @@ async function run() {
       extraParameters;
 
       const options = {};
+    options.listeners = {
+      stdout: data => {
+        console.log(data.toString())
+      },
+      stderr: data => {
+        console.log(data.toString())
+      }
+    }
     const result = await exec.exec(buildCommand, null, options);
 
     //For all testruns that are configured
@@ -8131,6 +8139,14 @@ async function run() {
         extraParameters;
       try {
         const options = {};
+        options.listeners = {
+          stdout: data => {
+            console.log(data.toString())
+          },
+          stderr: data => {
+            console.log(data.toString())
+          }
+        }
         await exec.exec(testCommand, null, options);
       } catch (error) {
         testError = error.message;
@@ -8313,16 +8329,15 @@ async function downloadLatestFramework(libraryVersion) {
   for (let release of Object.entries(releases)) {
     let name = release[1].name;
     try {
-      if (semver.eq(name, libraryVersion)) {
+      if (libraryVersion && semver.eq(name, libraryVersion)) {
         sdkURL = release[1].assets[0].browser_download_url
         break
-      }
-      if (semver.gt(name, currentVersion) && !semver.prerelease(name)) {
+      } else if (semver.gt(name, currentVersion) && !semver.prerelease(name)) {
         currentVersion = name;
         sdkURL = release[1].assets[0].browser_download_url
       }
     } catch (error) {
-      
+      console.log(error)
     }
   };
 
@@ -8522,6 +8537,14 @@ async function swiftPackageRun(platform, extraParameters, itrEnabled) {
   let testError;
   try {
     const options = {};
+    options.listeners = {
+      stdout: data => {
+        console.log(data.toString())
+      },
+      stderr: data => {
+        console.log(data.toString())
+      }
+    }
     options.env = {
       ...envVars,
       "DD_TEST_RUNNER": "1",
