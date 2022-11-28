@@ -8119,8 +8119,7 @@ async function run() {
                     "." +
                     "TestTargets" +
                     "." +
-                    testNumber,
-                  dsn
+                    testNumber
                 );
               }
             }
