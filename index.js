@@ -377,10 +377,10 @@ async function downloadLatestFramework(libraryVersion) {
   for (let release of Object.entries(releases)) {
     let name = release[1].name;
     try {
-      if (libraryVersion && semver.eq(name, libraryVersion)) {
+      if (libraryVersion && name && semver.eq(name, libraryVersion)) {
         sdkURL = release[1].assets[0].browser_download_url
         break
-      } else if (semver.gt(name, currentVersion) && !semver.prerelease(name)) {
+      } else if (name && semver.gt(name, currentVersion) && !semver.prerelease(name)) {
         currentVersion = name;
         sdkURL = release[1].assets[0].browser_download_url
       }
