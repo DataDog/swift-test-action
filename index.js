@@ -9,7 +9,6 @@ const exec = require('@actions/exec');
 const io = require('@actions/io');
 const fetch = require("node-fetch");
 const fs = require("fs");
-const semver = require("semver");
 const os = require("os");
 const path = require("path");
 const { Console } = require('console');
@@ -30,7 +29,6 @@ let envVars = Object.assign({}, process.env);
 
 // most @actions toolkit packages have async methods
 async function run() {
-
   try {
     let apiKey =  core.getInput("api_key");
     if (apiKey) {
@@ -366,28 +364,30 @@ function intelligentSelectScheme(schemes, workspacePath) {
 }
 
 async function downloadLatestFramework(libraryVersion) {
-  const releasesUrl = "https://api.github.com/repos/DataDog/dd-sdk-swift-testing/releases";
-  const jsonResponse = await fetch(releasesUrl);
-  const releases = await jsonResponse.json();
-  let currentVersion = "0.0.1";
   let sdkURL = "";
 
-  console.log(`Desired DDSDKSwiftTesting version ${libraryVersion}`)
+  if (libraryVersion) {
+    const releasesUrl = "https://api.github.com/repos/DataDog/dd-sdk-swift-testing/releases";
+    const jsonResponse = await fetch(releasesUrl);
+    const releases = await jsonResponse.json();
 
-  for (let release of Object.entries(releases)) {
-    let name = release[1].name;
-    try {
-      if (libraryVersion && name && semver.eq(name, libraryVersion)) {
-        sdkURL = release[1].assets[0].browser_download_url
-        break
-      } else if (name && semver.gt(name, currentVersion) && !semver.prerelease(name)) {
-        currentVersion = name;
-        sdkURL = release[1].assets[0].browser_download_url
-      }
-    } catch (error) {
-      console.log(error)
+    console.log(`Desired DDSDKSwiftTesting version ${libraryVersion}`)
+
+    for (let release of Object.entries(releases)) {
+      let name = release[1].name;
+        if (name == libraryVersion) {
+          sdkURL = release[1].assets[0].browser_download_url
+          break
+        } 
     }
-  };
+    if(sdkURL == "") {
+      console.log(`Desired version not found, downloading latest DDSDKSwiftTesting version`)
+      sdkURL = "https://github.com/DataDog/dd-sdk-swift-testing/releases/latest/download/DatadogSDKTesting.zip"
+    }
+  } else {
+    console.log(`Downloading latest DDSDKSwiftTesting version`)
+    sdkURL = "https://github.com/DataDog/dd-sdk-swift-testing/releases/latest/download/DatadogSDKTesting.zip"
+  }
 
   const sdkTestingPath = sdkTestingDir + "/dd_sdk_testing.zip";
   console.log(`dd_sdk_testing downloading: ${sdkURL}`);
