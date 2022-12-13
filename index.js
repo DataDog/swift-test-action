@@ -125,13 +125,13 @@ async function run() {
       extraParameters;
 
       const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
+    // options.listeners = {
+    //   stdout: data => {
+    //     console.log(data.toString())
+    //   },
+    //   stderr: data => {
+    //     console.log(data.toString())
+    //   }
     }
     const result = await exec.exec(buildCommand, null, options);
 
@@ -185,13 +185,13 @@ async function run() {
         extraParameters;
       try {
         const options = {};
-        options.listeners = {
-          stdout: data => {
-            console.log(data.toString())
-          },
-          stderr: data => {
-            console.log(data.toString())
-          }
+        // options.listeners = {
+        //   stdout: data => {
+        //     console.log(data.toString()) 
+        //   },
+        //   stderr: data => {
+        //     console.log(data.toString())
+        //   }
         }
         await exec.exec(testCommand, null, options);
       } catch (error) {
@@ -585,14 +585,14 @@ async function swiftPackageRun(platform, extraParameters, itrEnabled) {
   let testError;
   try {
     const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
-    }
+    // options.listeners = {
+    //   stdout: data => {
+    //     console.log(data.toString())
+    //   },
+    //   stderr: data => {
+    //     console.log(data.toString())
+    //   }
+    // }
     options.env = {
       ...envVars,
       "DD_TEST_RUNNER": "1",
