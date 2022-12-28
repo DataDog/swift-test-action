@@ -25,7 +25,7 @@ inputs:
     description: 'Sdk used for building, by default: \"iphonesimulator\" will be used'
     required: false
   destination:
-    description: 'Destination for testing, by default: \"platform=iOS Simulator,name=iPhone 11\"'
+    description: 'Destination for testing, by default: \"platform=iOS Simulator,name=iPhone 13\"'
     required: false
   configuration:
     description: 'Configuration for testing, by default: \"Debug\"'

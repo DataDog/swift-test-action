@@ -1,116 +1,43 @@
-# Create a JavaScript Action
+![logo](CIVislogo.png)
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+# CI Visibility for Swift Action
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+GitHub Action to run your Swift or Objective-C tests automatically instrumented with CI Visibility [Swift Testing framework](https://docs.datadoghq.com/continuous_integration/tests/swift). It supports Xcode projects as well as Swift Package Manager packages for iOS, macOS and tvOS platforms.
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
+## About Datadog Continuous Integration (CI) Visibility
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-Install the dependencies
-
-```bash
-npm install
-```
-
-Run the tests :heavy_check_mark:
-
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
-
-Run prepare
-
-```bash
-npm run prepare
-```
-
-Since the packaged index.js is run from the dist folder.
-
-```bash
-git add dist
-```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-```
-
-```bash
-git push origin v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+[CI Visibility](https://docs.datadoghq.com/continuous_integration/) brings together information about CI test and pipeline results plus data about CI performance, trends, and reliability, all into one place. Not only does it provide developers with the ability to dig into the reasons for a test or pipeline failure, to monitor trends in test suite execution times, or to see the effect a given commit has on the pipeline, it also gives build engineers visibility into cross-organization CI health and trends in pipeline performance over time.
 
 ## Usage
 
-You can now consume the action by referencing the v1 branch
+1. Set [Datadog API key](https://app.datadoghq.com/organization-settings/api-keys) inside Settings > Secrets as `DD_API_KEY`.
+2. Set [Datadog Application key](https://app.datadoghq.com/organization-settings/application-keys) inside Settings > Secrets as `DD_APPLICATION_KEY`.
+3. Add a step to your GitHub Actions workflow YAML that uses this action:
+
+   ```yaml
+   steps:
+     - name: Checkout
+       uses: actions/checkout@v3
+    - name: Run tests with Datadog 
+      uses: Datadog/swift-test-action@v1
+      with:
+          api_key: ${{ secrets.DD_API_KEY }}
+          application_key: ${{ secrets.DD_APPLICATION_KEY }}
+   ```
+
+## Configuration
+
+These are the optional parameters of the action:
 
 ```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
+platform: Platform to run: "ios", "macos" or "tvos". By default: "ios"
+workspace: .xcworkspace file, if not set, workspace will be autoselected
+project: .xcodeproj file, if not set, project will be autoselected
+scheme: Scheme to test, if not set, scheme will be autoselected
+sdk: SDK used for building, by default: "iphonesimulator" will be used
+destination: Destination for testing, by default: "platform=iOS Simulator,name=iPhone 13"
+configuration: Configuration for testing, by default: "Debug"
+libraryVersion: Version of the Datagog SDK testing framework to use for testing, by default the latest stable
+extraParameters: These input will be added directly to the build/test command
 ```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+There are also extra cofnfiguration values that can be set using environment values to the action as specified in the Swift framework [documentation](https://docs.datadoghq.com/continuous_integration/tests/swift#additional-optional-configuration)

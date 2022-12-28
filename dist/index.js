@@ -5930,17 +5930,7 @@ async function run() {
       " -destination " +
       `"${destination}" ` +
       extraParameters;
-
-      const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
-    }
-    const result = await exec.exec(buildCommand, null, options);
+    const result = await exec.exec(buildCommand, null, null);
 
     //For all testruns that are configured
     let testRuns = await getXCTestRuns();
@@ -5991,16 +5981,7 @@ async function run() {
         '"' +
         extraParameters;
       try {
-        const options = {};
-        options.listeners = {
-          stdout: data => {
-            console.log(data.toString())
-          },
-          stderr: data => {
-            console.log(data.toString())
-          }
-        }
-        await exec.exec(testCommand, null, options);
+        await exec.exec(testCommand, null, null);
       } catch (error) {
         testError = error.message;
       }
@@ -6041,7 +6022,7 @@ function getDestinationForPlatform(platform) {
     case "tvos":
       return "platform=tvOS Simulator,name=Apple TV 4K";
     default:
-      return "platform=iOS Simulator,name=iPhone 11";
+      return "platform=iOS Simulator,name=iPhone 13";
   }
 }
 
@@ -6392,14 +6373,14 @@ async function swiftPackageRun(platform, extraParameters, itrEnabled) {
   let testError;
   try {
     const options = {};
-    options.listeners = {
-      stdout: data => {
-        console.log(data.toString())
-      },
-      stderr: data => {
-        console.log(data.toString())
-      }
-    }
+    // options.listeners = {
+    //   stdout: data => {
+    //     console.log(data.toString())
+    //   },
+    //   stderr: data => {
+    //     console.log(data.toString())
+    //   }
+    // }
     options.env = {
       ...envVars,
       "DD_TEST_RUNNER": "1",
