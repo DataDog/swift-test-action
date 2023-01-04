@@ -40,4 +40,4 @@ configuration: Configuration for testing, by default: "Debug"
 libraryVersion: Version of the Datagog SDK testing framework to use for testing, by default the latest stable
 extraParameters: These input will be added directly to the build/test command
 ```
-There are also extra cofnfiguration values that can be set using environment values to the action as specified in the Swift framework [documentation](https://docs.datadoghq.com/continuous_integration/tests/swift#additional-optional-configuration)
+There are also extra configuration values that can be set using environment values to the action as specified in the Swift framework [documentation](https://docs.datadoghq.com/continuous_integration/tests/swift#additional-optional-configuration)

@@ -12,7 +12,6 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { Console } = require('console');
-// const path = require("path");
 
 const temp = os.tmpdir();
 const DD_API_KEY = "DD_API_KEY";
@@ -47,7 +46,7 @@ async function run() {
     const sdk = core.getInput("sdk") || getSDKForPlatform(platform);
     const destination = core.getInput("destination") || getDestinationForPlatform(platform);
     const configuration = core.getInput("configuration") || "Debug";
-    const libraryVersion = core.getInput("libraryVersion" || "");
+    const libraryVersion = core.getInput("libraryVersion") || "";
     const extraParameters = core.getInput("extraParameters") || "";
 
 
@@ -92,10 +91,10 @@ async function run() {
     const scheme = await getScheme(workspace, xcodeproj);
     console.log(`Scheme selected: ${scheme}`);
 
-      //copy configfile
-      const configfileName = "ddTesting.xcconfig";
-      const configFilePath = sdkTestingDir + "/" + configfileName;
-      createXCConfigFile(configFilePath, sdkTestingDir);
+    //copy configfile
+    const configfileName = "ddTesting.xcconfig";
+    const configFilePath = sdkTestingDir + "/" + configfileName;
+    createXCConfigFile(configFilePath, sdkTestingDir);
 
 
 
@@ -105,24 +104,14 @@ async function run() {
     }
 
     //build for testing
-    let buildCommand =
-      "xcodebuild build-for-testing " +
-      codeCoverParam +
-      " -xcconfig " +
-      configFilePath +
-      " " +
-      projectParameter +
-      " -configuration " +
-      configuration +
-      " -scheme " +
-      `"${scheme}"` +
-      " -sdk " +
-      sdk +
-      " -derivedDataPath " +
-      derivedDataPath +
-      " -destination " +
-      `"${destination}" ` +
-      extraParameters;
+    const buildCommand = `xcodebuild build-for-testing ${codeCoverParam} ` +
+    `-xcconfig ${configFilePath} ${projectParameter}` +
+    `-configuration ${configuration} ` +
+    `-scheme "${scheme}" `+
+    `-sdk ${sdk} ` +
+    `-derivedDataPath ${derivedDataPath} ` +
+    `-destination "${destination}"` +
+    extraParameters
     const result = await exec.exec(buildCommand, null, null);
 
     //For all testruns that are configured
