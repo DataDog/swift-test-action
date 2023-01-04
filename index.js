@@ -40,8 +40,7 @@ async function run() {
     }
 
 
-    let platform = core.getInput("platform") || "ios";
-    platform = platform.toLowerCase();
+    const platform = (core.getInput("platform") || "ios").toLowerCase();
 
     const sdk = core.getInput("sdk") || getSDKForPlatform(platform);
     const destination = core.getInput("destination") || getDestinationForPlatform(platform);
@@ -51,7 +50,7 @@ async function run() {
 
 
     //If project uses testplan force use of code coverage
-    let file_list = recFindByExt(".", "xctestplan");
+    const file_list = recFindByExt(".", "xctestplan");
     for (let testPlanFile of file_list) {
       await deleteLinesContaining(testPlanFile, "codeCoverage");
     }
@@ -89,16 +88,13 @@ async function run() {
     console.log(`Scheme selected: ${scheme}`);
 
     //copy configfile
-    const configfileName = "ddTesting.xcconfig";
-    const configFilePath = sdkTestingDir + "/" + configfileName;
+    const configFilePath = `${sdkTestingDir}/ddTesting.xcconfig`;
     createXCConfigFile(configFilePath, sdkTestingDir);
 
 
 
-    let codeCoverParam = "-enableCodeCoverage YES";
-
     //build for testing
-    const buildCommand = `xcodebuild build-for-testing ${codeCoverParam} ` +
+    const buildCommand = `xcodebuild build-for-testing -enableCodeCoverage YES ` +
     `-xcconfig ${configFilePath} ${projectParameter}` +
     `-configuration ${configuration} ` +
     `-scheme "${scheme}" `+
@@ -133,13 +129,7 @@ async function run() {
               for (const test of configuration["TestTargets"]) {
                 await insertEnvVariables(
                   testRun,
-                  target +
-                    "." +
-                    configurationNumber +
-                    "." +
-                    "TestTargets" +
-                    "." +
-                    testNumber
+                  `${target}.${configurationNumber}.TestTargets.${testNumber}`
                 );
               }
             }
@@ -147,7 +137,7 @@ async function run() {
         }
       }
       //run tests
-      let testCommand =
+      const testCommand =
         "xcodebuild test-without-building " +
         codeCoverParam +
         " -xctestrun " +
@@ -175,7 +165,6 @@ async function run() {
 
     //Clean up
   fs.rmSync(sdkTestingDir, { recursive: true });
-
 }
 
 function getSDKForPlatform(platform) {
@@ -515,14 +504,6 @@ async function swiftPackageRun(platform, extraParameters) {
   let testError;
   try {
     const options = {};
-    // options.listeners = {
-    //   stdout: data => {
-    //     console.log(data.toString())
-    //   },
-    //   stderr: data => {
-    //     console.log(data.toString())
-    //   }
-    // }
     options.env = {
       ...envVars,
       "DD_TEST_RUNNER": "1",
