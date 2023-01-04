@@ -50,13 +50,10 @@ async function run() {
     const extraParameters = core.getInput("extraParameters") || "";
 
 
-    const itrEnabled = true;
-    if (itrEnabled) {
-      //If project uses testplan force use of code coverage
-      let file_list = recFindByExt(".", "xctestplan");
-      for (let testPlanFile of file_list) {
-        await deleteLinesContaining(testPlanFile, "codeCoverage");
-      }
+    //If project uses testplan force use of code coverage
+    let file_list = recFindByExt(".", "xctestplan");
+    for (let testPlanFile of file_list) {
+      await deleteLinesContaining(testPlanFile, "codeCoverage");
     }
 
     //Create folder to store files
@@ -80,7 +77,7 @@ async function run() {
       projectParameter = "-project " + `"${xcodeproj}"`;
     } else if (fs.existsSync("Package.swift")) {
       console.log(`Package.swift selected`);
-      await swiftPackageRun(platform, extraParameters, itrEnabled);
+      await swiftPackageRun(platform, extraParameters);
       return;
     } else {
       core.setFailed(
@@ -98,10 +95,7 @@ async function run() {
 
 
 
-    let codeCoverParam = "";
-    if (itrEnabled) {
-      codeCoverParam = "-enableCodeCoverage YES";
-    }
+    let codeCoverParam = "-enableCodeCoverage YES";
 
     //build for testing
     const buildCommand = `xcodebuild build-for-testing ${codeCoverParam} ` +
@@ -244,7 +238,7 @@ async function deleteLinesContaining(file, match) {
     // IN CASE YOU WANT TO UPDATE THE CONTENT IN YOUR FILE
     // THIS WILL REMOVE THE LINE CONTAINS 'user1' IN YOUR shuffle.txt FILE
     const updatedData = dataArray.join("\n");
-    fs.writeFileSync(file, updatedData, err => {
+    fs.writeFile(file, updatedData, err => {
       if (err) throw err;
       console.log("Successfully updated the file data");
     });
@@ -502,11 +496,8 @@ function recFindByExt(base, ext, files, result) {
   return result;
 }
 
-async function swiftPackageRun(platform, extraParameters, itrEnabled) {
-  let codeCoverParam = "";
-  if (itrEnabled) {
-    codeCoverParam = " --enable-code-coverage ";
-  }
+async function swiftPackageRun(platform, extraParameters) {
+  let codeCoverParam = " --enable-code-coverage ";
 
   //build and test
   let buildTestCommand =

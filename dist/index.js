@@ -5819,7 +5819,6 @@ const fs = __nccwpck_require__(5747);
 const os = __nccwpck_require__(2087);
 const path = __nccwpck_require__(5622);
 const { Console } = __nccwpck_require__(7082);
-// const path = require("path");
 
 const temp = os.tmpdir();
 const DD_API_KEY = "DD_API_KEY";
@@ -5854,17 +5853,14 @@ async function run() {
     const sdk = core.getInput("sdk") || getSDKForPlatform(platform);
     const destination = core.getInput("destination") || getDestinationForPlatform(platform);
     const configuration = core.getInput("configuration") || "Debug";
-    const libraryVersion = core.getInput("libraryVersion" || 0);
+    const libraryVersion = core.getInput("libraryVersion") || "";
     const extraParameters = core.getInput("extraParameters") || "";
 
 
-    const itrEnabled = true;
-    if (itrEnabled) {
-      //If project uses testplan force use of code coverage
-      let file_list = recFindByExt(".", "xctestplan");
-      for (let testPlanFile of file_list) {
-        await deleteLinesContaining(testPlanFile, "codeCoverage");
-      }
+    //If project uses testplan force use of code coverage
+    let file_list = recFindByExt(".", "xctestplan");
+    for (let testPlanFile of file_list) {
+      await deleteLinesContaining(testPlanFile, "codeCoverage");
     }
 
     //Create folder to store files
@@ -5888,7 +5884,7 @@ async function run() {
       projectParameter = "-project " + `"${xcodeproj}"`;
     } else if (fs.existsSync("Package.swift")) {
       console.log(`Package.swift selected`);
-      await swiftPackageRun(platform, extraParameters, itrEnabled);
+      await swiftPackageRun(platform, extraParameters);
       return;
     } else {
       core.setFailed(
@@ -5899,37 +5895,24 @@ async function run() {
     const scheme = await getScheme(workspace, xcodeproj);
     console.log(`Scheme selected: ${scheme}`);
 
-      //copy configfile
-      const configfileName = "ddTesting.xcconfig";
-      const configFilePath = sdkTestingDir + "/" + configfileName;
-      createXCConfigFile(configFilePath, sdkTestingDir);
+    //copy configfile
+    const configfileName = "ddTesting.xcconfig";
+    const configFilePath = sdkTestingDir + "/" + configfileName;
+    createXCConfigFile(configFilePath, sdkTestingDir);
 
 
 
-    let codeCoverParam = "";
-    if (itrEnabled) {
-      codeCoverParam = "-enableCodeCoverage YES";
-    }
+    let codeCoverParam = "-enableCodeCoverage YES";
 
     //build for testing
-    let buildCommand =
-      "xcodebuild build-for-testing " +
-      codeCoverParam +
-      " -xcconfig " +
-      configFilePath +
-      " " +
-      projectParameter +
-      " -configuration " +
-      configuration +
-      " -scheme " +
-      `"${scheme}"` +
-      " -sdk " +
-      sdk +
-      " -derivedDataPath " +
-      derivedDataPath +
-      " -destination " +
-      `"${destination}" ` +
-      extraParameters;
+    const buildCommand = `xcodebuild build-for-testing ${codeCoverParam} ` +
+    `-xcconfig ${configFilePath} ${projectParameter}` +
+    `-configuration ${configuration} ` +
+    `-scheme "${scheme}" `+
+    `-sdk ${sdk} ` +
+    `-derivedDataPath ${derivedDataPath} ` +
+    `-destination "${destination}"` +
+    extraParameters
     const result = await exec.exec(buildCommand, null, null);
 
     //For all testruns that are configured
@@ -6041,7 +6024,7 @@ function getFrameworkPathForPlatform(platform) {
 async function deleteLinesContaining(file, match) {
   let newName = file + "_old";
   await io.mv(file, newName);
-  fs.readFile(newName, { encoding: "utf-8" }, function(err, data) {
+  fs.readFileSync(newName, { encoding: "utf-8" }, function(err, data) {
     if (err) throw error;
 
     let dataArray = data.split("\n"); // convert file data in an array
@@ -6320,42 +6303,8 @@ function recFindByExt(base, ext, files, result) {
   return result;
 }
 
-async function deleteLinesContaining(file, match) {
-  let newName = file + "_old";
-  await io.mv(file, newName);
-  fs.readFile(newName, { encoding: "utf-8" }, function(err, data) {
-    if (err) throw error;
-
-    let dataArray = data.split("\n"); // convert file data in an array
-    const searchKeyword = match; // we are looking for a line, contains, key word 'user1' in the file
-    let lastIndex = -1; // let say, we have not found the keyword
-
-    for (let index = 0; index < dataArray.length; index++) {
-      if (dataArray[index].includes(searchKeyword)) {
-        // check if a line contains the 'user1' keyword
-        lastIndex = index; // found a line includes a 'user1' keyword
-        break;
-      }
-    }
-
-    dataArray.splice(lastIndex, 1); // remove the keyword 'user1' from the data Array
-
-    // UPDATE FILE WITH NEW DATA
-    // IN CASE YOU WANT TO UPDATE THE CONTENT IN YOUR FILE
-    // THIS WILL REMOVE THE LINE CONTAINS 'user1' IN YOUR shuffle.txt FILE
-    const updatedData = dataArray.join("\n");
-    fs.writeFile(file, updatedData, err => {
-      if (err) throw err;
-      console.log("Successfully updated the file data");
-    });
-  });
-}
-
-async function swiftPackageRun(platform, extraParameters, itrEnabled) {
-  let codeCoverParam = "";
-  if (itrEnabled) {
-    codeCoverParam = " --enable-code-coverage ";
-  }
+async function swiftPackageRun(platform, extraParameters) {
+  let codeCoverParam = " --enable-code-coverage ";
 
   //build and test
   let buildTestCommand =
