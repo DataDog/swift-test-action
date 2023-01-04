@@ -30,15 +30,16 @@ let envVars = Object.assign({}, process.env);
 async function run() {
   try {
     let apiKey =  core.getInput("api_key");
-    if (apiKey) {
-      envVars[DD_API_KEY] = apiKey;
-    }
-
     let applicationKey =  core.getInput("application_key");
-    if (applicationKey) {
-      envVars[DD_APPLICATION_KEY] = applicationKey;
+
+
+    if (!apiKey || !applicationKey) {
+      Console.log(`Error: Both api_key and application_key parameters are needed for the action`);
+      return
     }
 
+    envVars[DD_API_KEY] = apiKey;
+    envVars[DD_APPLICATION_KEY] = applicationKey;
 
     const platform = (core.getInput("platform") || "ios").toLowerCase();
 
