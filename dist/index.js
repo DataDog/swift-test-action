@@ -5636,14 +5636,6 @@ module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 7082:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("console");
-
-/***/ }),
-
 /***/ 6417:
 /***/ ((module) => {
 
@@ -5818,7 +5810,6 @@ const fetch = __nccwpck_require__(467);
 const fs = __nccwpck_require__(5747);
 const os = __nccwpck_require__(2087);
 const path = __nccwpck_require__(5622);
-const { Console } = __nccwpck_require__(7082);
 
 const temp = os.tmpdir();
 const DD_API_KEY = "DD_API_KEY";
@@ -5836,12 +5827,12 @@ let envVars = Object.assign({}, process.env);
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    let apiKey =  core.getInput("api_key");
-    let applicationKey =  core.getInput("application_key");
+    const apiKey =  core.getInput("api_key");
+    const applicationKey =  core.getInput("application_key");
 
 
     if (!apiKey || !applicationKey) {
-      Console.log(`Error: Both api_key and application_key parameters are needed for the action`);
+      console.error(`Error: Both api_key and application_key parameters are needed for the action`);
       return
     }
 
@@ -5858,8 +5849,8 @@ async function run() {
 
 
     //If project uses testplan force use of code coverage
-    const file_list = recFindByExt(".", "xctestplan");
-    for (let testPlanFile of file_list) {
+    const fileList = recFindByExt(".", "xctestplan");
+    for (let testPlanFile of fileList) {
       await deleteLinesContaining(testPlanFile, "codeCoverage");
     }
 
@@ -5870,7 +5861,7 @@ async function run() {
 
     //Read project
     const workspace = await getWorkspace();
-    let xcodeproj = await getXCodeProj();
+    const xcodeproj = await getXCodeProj();
     var projectParameter;
 
     //download testing framework
@@ -5948,13 +5939,10 @@ async function run() {
       const testCommand =
         "xcodebuild test-without-building" +
         " -enableCodeCoverage YES" +
-        " -xctestrun" +
-        ` "${testRun}"` +
-        ' -destination "' +
-        destination +
-        '"' +
-        ` ` + extraParameters;
-        try {
+        ` -xctestrun "${testRun}"` +
+        ` -destination "${destination}"` +
+        ` ${extraParameters}`;
+      try {
         await exec.exec(testCommand, null, null);
       } catch (error) {
         testError = error.message;
@@ -6035,10 +6023,8 @@ async function deleteLinesContaining(file, match) {
   // IN CASE YOU WANT TO UPDATE THE CONTENT IN YOUR FILE
   // THIS WILL REMOVE THE LINE CONTAINS 'user1' IN YOUR shuffle.txt FILE
   const updatedData = dataArray.join("\n");
-  fs.writeFile(file, updatedData, err => {
-    if (err) throw err;
-    console.log("Successfully updated the file data");
-  });
+  fs.writeFileSync(file, updatedData);
+  console.log("Successfully updated the file data");
 }
 
 async function getWorkspace() {
