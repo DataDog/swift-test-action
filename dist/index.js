@@ -5878,10 +5878,10 @@ async function run() {
 
     if (workspace) {
       console.log(`Workspace selected: ${workspace}`);
-      projectParameter = "-workspace " + `"${workspace}"`;
+      projectParameter = "-workspace " + `"${workspace}" `;
     } else if (xcodeproj) {
       console.log(`Project selected: ${xcodeproj}`);
-      projectParameter = "-project " + `"${xcodeproj}"`;
+      projectParameter = "-project " + `"${xcodeproj}" `;
     } else if (fs.existsSync("Package.swift")) {
       console.log(`Package.swift selected`);
       await swiftPackageRun(platform, extraParameters);
@@ -5902,14 +5902,14 @@ async function run() {
 
 
     //build for testing
-    const buildCommand = `xcodebuild build-for-testing -enableCodeCoverage YES ` +
-    `-xcconfig ${configFilePath} ${projectParameter}` +
-    `-configuration ${configuration} ` +
-    `-scheme "${scheme}" `+
-    `-sdk ${sdk} ` +
-    `-derivedDataPath ${derivedDataPath} ` +
-    `-destination "${destination}"` +
-    extraParameters
+    const buildCommand = `xcodebuild build-for-testing -enableCodeCoverage YES` +
+    ` -xcconfig ${configFilePath} ${projectParameter}` +
+    ` -configuration ${configuration}` +
+    ` -scheme "${scheme}"`+
+    ` -sdk ${sdk}` +
+    ` -derivedDataPath ${derivedDataPath}` +
+    ` -destination "${destination}"` +
+    ` ` + extraParameters
     const result = await exec.exec(buildCommand, null, null);
 
     //For all testruns that are configured
@@ -5926,35 +5926,35 @@ async function run() {
       let jsonString = fs.readFileSync(testrunJson, "utf8");
       const testTargets = JSON.parse(jsonString);
 
-      for (const target of Object.keys(testTargets)) {
-        if (target.charAt(0) !== "_") {
-          if (testTargets[target].TestingEnvironmentVariables) {
-            await insertEnvVariables(testRun, target);
-          } else if (target === "TestConfigurations") {
-            let configurationNumber = 0;
-            for (const configuration of testTargets["TestConfigurations"]) {
-              let testNumber = 0;
-              for (const test of configuration["TestTargets"]) {
-                await insertEnvVariables(
-                  testRun,
-                  `${target}.${configurationNumber}.TestTargets.${testNumber}`
-                );
-              }
+      //We avoid processing internal metadata
+      const testTargetsToModify = Object.keys(testTargets).filter(key => key[0] !== '_')
+      for (const target of testTargetsToModify) {
+        if (testTargets[target].TestingEnvironmentVariables) {
+          await insertEnvVariables(testRun, target);
+        } else if (target === "TestConfigurations") {
+          let configurationNumber = 0;
+          for (const configuration of testTargets["TestConfigurations"]) {
+            let testNumber = 0;
+            for (const test of configuration["TestTargets"]) {
+              await insertEnvVariables(
+                testRun,
+                `${target}.${configurationNumber}.TestTargets.${testNumber}`
+              );
             }
           }
         }
       }
       //run tests
       const testCommand =
-        "xcodebuild test-without-building " +
-        codeCoverParam +
-        " -xctestrun " +
-        `"${testRun}"` +
+        "xcodebuild test-without-building" +
+        " -enableCodeCoverage YES" +
+        " -xctestrun" +
+        ` "${testRun}"` +
         ' -destination "' +
         destination +
         '"' +
-        extraParameters;
-      try {
+        ` ` + extraParameters;
+        try {
         await exec.exec(testCommand, null, null);
       } catch (error) {
         testError = error.message;
@@ -5995,7 +5995,7 @@ function getDestinationForPlatform(platform) {
     case "tvos":
       return "platform=tvOS Simulator,name=Apple TV 4K";
     default:
-      return "platform=iOS Simulator,name=iPhone 13";
+      return "platform=iOS Simulator,name=iPhone 14";
   }
 }
 
@@ -6293,16 +6293,13 @@ function recFindByExt(base, ext, files, result) {
 }
 
 async function swiftPackageRun(platform, extraParameters) {
-  let codeCoverParam = " --enable-code-coverage ";
-
   //build and test
   let buildTestCommand =
-    "swift test " +
-    codeCoverParam +
-    " -Xswiftc " +
-    "-F" +
+    "swift test" +
+    " --enable-code-coverage" +
+    " -Xswiftc" +
+    " -F" +
     sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
-    " " +
     " -Xswiftc -framework -Xswiftc DatadogSDKTesting -Xlinker -rpath -Xlinker " +
     sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
     " " +
