@@ -11,7 +11,6 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { Console } = require('console');
 
 const temp = os.tmpdir();
 const DD_API_KEY = "DD_API_KEY";
