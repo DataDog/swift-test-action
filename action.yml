@@ -1,13 +1,42 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'Swift test action for Datadog'
+author: 'Datadog, Inc.'
+description: 'Automatically instruments and runs your tests reporting to Datadog CI Visibility'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  api_key:
+    description: "Datadog API key"
     required: true
-    default: '1000'
-outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  application_key:
+    description: "Datadog Application key"
+    required: true
+  platform:
+    description: 'Platform to run: \"ios\", \"macos\" or \"tvos\". By default: \"ios\"'
+    required: false
+    default: "ios"
+  workspace:
+    description: ".xcworkspace file, if not set, workspace will be autoselected"
+    required: false
+  project:
+    description: ".xcodeproj file, if not set, project will be autoselected"
+    required: false
+  scheme:
+    description: "Scheme to test, if not set, scheme will be autoselected"
+    required: false
+  sdk:
+    description: 'Sdk used for building, by default: \"iphonesimulator\" will be used'
+    required: false
+  destination:
+    description: 'Destination for testing, by default: \"platform=iOS Simulator,name=iPhone 13\"'
+    required: false
+  configuration:
+    description: 'Configuration for testing, by default: \"Debug\"'
+    required: false
+  libraryVersion:
+    description: "Version of the Datagog SDK testing framework to use for testing, by default the latest stable"
+    required: false
+  extraParameters:
+    description: "These input will be added directly to the build/test command"
+    required: false
+    default: ""
 runs:
   using: 'node16'
   main: 'dist/index.js'
