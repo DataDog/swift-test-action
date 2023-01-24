@@ -314,26 +314,9 @@ async function downloadLatestFramework(libraryVersion) {
   let sdkURL = "";
 
   if (libraryVersion) {
-    const releasesUrl = "https://api.github.com/repos/DataDog/dd-sdk-swift-testing/releases";
-    const jsonResponse = await fetch(releasesUrl);
-    const releases = await jsonResponse.json();
-
-    console.log(`Desired DDSDKSwiftTesting version ${libraryVersion}`)
-
-    for (let release of Object.entries(releases)) {
-      let name = release[1].name;
-        if (name == libraryVersion) {
-          sdkURL = release[1].assets[0].browser_download_url
-          break
-        } 
-    }
-    if(sdkURL == "") {
-      console.log(`Desired version not found, downloading latest DDSDKSwiftTesting version`)
-      sdkURL = "https://github.com/DataDog/dd-sdk-swift-testing/releases/latest/download/DatadogSDKTesting.zip"
-    }
+    sdkURL = `https://github.com/DataDog/dd-sdk-swift-testing/releases/download/${libraryVersion}/DatadogSDKTesting.zip`
   } else {
-    console.log(`Downloading latest DDSDKSwiftTesting version`)
-    sdkURL = "https://github.com/DataDog/dd-sdk-swift-testing/releases/latest/download/DatadogSDKTesting.zip"
+    sdkURL = `https://github.com/DataDog/dd-sdk-swift-testing/releases/latest/download/DatadogSDKTesting.zip`
   }
 
   const sdkTestingPath = sdkTestingDir + "/dd_sdk_testing.zip";
