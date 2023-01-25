@@ -330,6 +330,9 @@ async function downloadLatestFramework(libraryVersion) {
 
 const downloadFile = async (url, path) => {
   const res = await fetch(url);
+  if (res.status === 404) {
+    console.error(`Desired testing library version not found`);
+  }
   const fileStream = fs.createWriteStream(path);
   await new Promise((resolve, reject) => {
     res.body.pipe(fileStream);
