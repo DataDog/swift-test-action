@@ -470,6 +470,7 @@ async function swiftPackageRun(platform, extraParameters) {
   let buildTestCommand =
     "swift test" +
     " --enable-code-coverage" +
+    " -Xswiftc -g -Xswiftc -debug-info-format=dwarf" +
     " -Xswiftc" +
     " -F" +
     sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
@@ -485,7 +486,13 @@ async function swiftPackageRun(platform, extraParameters) {
       ...envVars,
       "DD_TEST_RUNNER": "1",
       "SRCROOT": envVars["GITHUB_WORKSPACE"],
-    }
+    };
+    options.listeners = {
+      stdout: data => {
+        console.log(data.toString());
+      }
+    };
+    
     await exec.exec(buildTestCommand, null, options);
   } catch (error) {
     testError = error.message;

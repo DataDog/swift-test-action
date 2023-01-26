@@ -5827,7 +5827,6 @@ let envVars = Object.assign({}, process.env);
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-
     const apiKey =  core.getInput("api_key");
     const applicationKey =  core.getInput("application_key");
 
@@ -6130,6 +6129,9 @@ async function downloadLatestFramework(libraryVersion) {
 
 const downloadFile = async (url, path) => {
   const res = await fetch(url);
+  if (res.status === 404) {
+    console.error(`Desired testing library version not found`);
+  }
   const fileStream = fs.createWriteStream(path);
   await new Promise((resolve, reject) => {
     res.body.pipe(fileStream);
@@ -6267,6 +6269,7 @@ async function swiftPackageRun(platform, extraParameters) {
   let buildTestCommand =
     "swift test" +
     " --enable-code-coverage" +
+    " -Xswiftc -g -Xswiftc -debug-info-format=dwarf" +
     " -Xswiftc" +
     " -F" +
     sdkTestingFrameworkPath + "/" + getFrameworkPathForPlatform(platform) +
@@ -6282,7 +6285,13 @@ async function swiftPackageRun(platform, extraParameters) {
       ...envVars,
       "DD_TEST_RUNNER": "1",
       "SRCROOT": envVars["GITHUB_WORKSPACE"],
-    }
+    };
+    options.listeners = {
+      stdout: data => {
+        console.log(data.toString());
+      }
+    };
+    
     await exec.exec(buildTestCommand, null, options);
   } catch (error) {
     testError = error.message;
