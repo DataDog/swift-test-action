@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
+  "name": "swift-test-action",
   "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "description": "Automatically instrumenta Swift or Objective-C test for Datadog CI Visibility",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -11,19 +11,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+    "url": "git+https://github.com/DataDog/swift-test-action.git"
   },
   "keywords": [
-    "GitHub",
-    "Actions",
-    "JavaScript"
+    "actions",
+    "datadog",
+    "ci",
+    "test",
+    "visibility"
   ],
   "author": "",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
-  },
-  "homepage": "https://github.com/actions/javascript-action#readme",
   "dependencies": {
     "@actions/core": "^1.2.5",
     "@actions/exec": "^1.1.1",

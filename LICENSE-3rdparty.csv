@@ -1,0 +1,7 @@
+Component,Origin,License,Copyright
+module,@actions/core,MIT,Copyright 2019 GitHub
+module,@actions/exec,MIT,Copyright 2019 GitHub
+module,node-fetch,MIT,Copyright 2016 - 2020 Node Fetch Team
+development,@vercel/ncc,MIT,Copyright 2018 ZEIT Inc
+development,eslint,MIT,Copyright OpenJS Foundation and other contributors
+development,jest,MIT,Copyright Facebook Inc. and its affiliates
