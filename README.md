@@ -1,6 +1,6 @@
 ![logo](CIVislogo.png)
 
-# CI Visibility for Swift Action
+# Swift Action for CI Visibility
 
 GitHub Action to run your Swift or Objective-C tests automatically instrumented with CI Visibility [Swift Testing framework](https://docs.datadoghq.com/continuous_integration/tests/swift). It supports Xcode projects as well as Swift Package Manager packages for iOS, macOS and tvOS platforms.
 
