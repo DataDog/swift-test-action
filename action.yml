@@ -1,5 +1,8 @@
 name: 'Swift test action for Datadog'
 author: 'Datadog, Inc.'
+branding:
+  icon: 'code'
+  color: 'purple'
 description: 'Automatically instruments and runs your tests reporting to Datadog CI Visibility'
 inputs:
   api_key:
