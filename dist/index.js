@@ -6227,6 +6227,7 @@ async function insertEnvVariables(file, target) {
   await insertEnvVariable( "DD_ENDPOINT", envVars["DD_ENDPOINT"] || "", file, target );
   await insertEnvVariable( "DD_DONT_EXPORT", envVars["DD_DONT_EXPORT"] || "", file, target );
   await insertEnvVariable( "DD_TRACE_DEBUG", envVars["DD_TRACE_DEBUG"] || "", file, target );
+  await insertEnvVariable( "DD_TRACE_DEBUG_CALLSTACK", envVars["DD_TRACE_DEBUG_CALLSTACK"] || "", file, target );
   await insertEnvVariable( "DD_DISABLE_GIT_INFORMATION", envVars["DD_DISABLE_GIT_INFORMATION"] || "", file, target );
   await insertEnvVariable( "DD_CIVISIBILITY_EXCLUDED_BRANCHES", envVars["DD_CIVISIBILITY_EXCLUDED_BRANCHES"] || "", file, target );
   await insertEnvVariable( "DD_CIVISIBILITY_ITR_ENABLED", envVars["DD_CIVISIBILITY_ITR_ENABLED"] || "", file, target );
