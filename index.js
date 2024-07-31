@@ -23,11 +23,11 @@ let envVars = Object.assign({}, process.env);
 async function run() {
   try {
     const apiKey =  core.getInput("api_key");
-    const applicationKey =  core.getInput("application_key");
+    const applicationKey =  core.getInput("app_key");
 
 
     if (!apiKey || !applicationKey) {
-      console.error(`Error: Both api_key and application_key parameters are needed for the action`);
+      console.error(`Error: Both api_key and app_key parameters are needed for the action`);
       return
     }
 
