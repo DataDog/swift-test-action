@@ -23,7 +23,7 @@ let envVars = Object.assign({}, process.env);
 async function run() {
   try {
     const apiKey =  core.getInput("api_key");
-    const applicationKey =  core.getInput("app_key");
+    const applicationKey =  core.getInput("app_key") || core.getInput("application_key");
 
 
     if (!apiKey || !applicationKey) {
