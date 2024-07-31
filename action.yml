@@ -8,9 +8,13 @@ inputs:
   api_key:
     description: "Datadog API key"
     required: true
-  application_key:
+  app_key:
     description: "Datadog Application key"
-    required: true
+    required: false
+  application_key:
+    description: "(Deprecated) Datadog Application key"
+    deprecationMessage: "This input is deprecated. Use `app_key` instead."
+    required: false
   platform:
     description: 'Platform to run: \"ios\", \"macos\" or \"tvos\". By default: \"ios\"'
     required: false
