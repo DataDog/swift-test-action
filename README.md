@@ -11,7 +11,7 @@ GitHub Action to run your Swift or Objective-C tests automatically instrumented 
 ## Usage
 
 1. Set [Datadog API key](https://app.datadoghq.com/organization-settings/api-keys) inside Settings > Secrets as `DD_API_KEY`.
-2. Set [Datadog Application key](https://app.datadoghq.com/organization-settings/application-keys) inside Settings > Secrets as `DD_APPLICATION_KEY`.
+2. Set [Datadog Application key](https://app.datadoghq.com/organization-settings/application-keys) inside Settings > Secrets as `DD_APP_KEY`.
 3. Add a step to your GitHub Actions workflow YAML that uses this action:
 
    ```yaml
@@ -22,7 +22,7 @@ GitHub Action to run your Swift or Objective-C tests automatically instrumented 
       uses: Datadog/swift-test-action@v1
       with:
           api_key: ${{ secrets.DD_API_KEY }}
-          application_key: ${{ secrets.DD_APPLICATION_KEY }}
+          app_key: ${{ secrets.DD_APP_KEY }}
    ```
 
 ## Configuration
